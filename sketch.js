@@ -1,9 +1,9 @@
 /********************* Constants *********************/
 
-const canvasSize = 800;
 const gridSize   = 4;
-
 const squareSize = 100;
+
+const canvasSize = gridSize * squareSize + 1;
 
 const startNum   = 2;
 
@@ -73,7 +73,7 @@ function keyPressed() {
 		p = copyGrid(grid);
 	// Rotate the grid if up/down
 	if (a == 1)
-		g = rotateGrid(g);
+		g = rotateGrid(g, 1);
 		
 	// Actual move and combination
 	g = slideGrid(g,a,d);
@@ -81,7 +81,7 @@ function keyPressed() {
 	
 	// Rotate back 
 	if (a == 1)
-		g = unrotateGrid(g);
+		g = rotateGrid(g, 3);
 	
 	// Save changes
 	grid = g;
@@ -110,23 +110,20 @@ function initGrid() {
 }
 
 // Swap row and column of an array
-function rotateGrid(g) {
-	var s  = g.length,
-		cp = copyGrid(g);
-	for (var i = 0; i < s; i++) {
-		cp[i].fill(0);
-		for (var j = 0; j < s; j++)
-			cp[i][j] = g[j][i];
-	}		
+function rotateGrid(g, d) {
+	var s, 
+		cp = copyGrid(g), cp2; 
+	for (var n = 0; n < d; n++) {
+		cp2 = copyGrid(cp);
+		s   = cp.length;
+		for (var i = 0; i < s; i++) {
+			cp2[i].fill(0);
+			for (var j = 0; j < s; j++)
+				cp2[i][j] = cp[j][i];
+		}		
+		cp = copyGrid(cp2);
+	}
 	return cp;
-}
-
-// Undo the rotation on an array (just rotate it 3x)
-function unrotateGrid(g) {
-	var res = copyGrid(g);
-	for (var i = 0; i < 3; i++)
-		res = rotateGrid(res);
-	return res;
 }
 
 // Make a copy of an array
@@ -159,7 +156,7 @@ function feedGrid(n=1) {
 		num,
 		pos;
 	while (ok < n) {
-		num = (random() < 0.5) ? 2 : 4;
+		num = (random() < 0.9) ? 2 : 4;
 		pos = createVector(floor(random(gridSize)), floor(random(gridSize)));
 		if (grid[pos.x][pos.y] == 0) {
 			grid[pos.x][pos.y] = num;
@@ -265,7 +262,7 @@ function drawGrid(w) {
 			fill(c);
 			strokeWeight(1);
 			stroke(0);
-			rect(j * w, i * w, w, w);
+			rect(j * w, i * w, w, w, 10);
 			
 			if (v != 0) {
 				textAlign(CENTER, CENTER);
